@@ -30,19 +30,22 @@ Versões recomendadas:
 
 1. Clonar o repositório.
 2. Entrar na pasta do projeto.
-3. Rodar o setup completo com make up.
+3. Inicializar variáveis de ambiente.
+4. Rodar o setup completo com make up.
 
 Fluxo sugerido:
 
 ```bash
 git clone <url-do-repositorio>
 cd codequest
+make env-init
 make up
 ```
 
 Se não tiver make no Windows, execute manualmente:
 
 ```bash
+cp .env.example .env
 docker compose up -d --build
 flutter pub get
 npm --prefix firebase/functions install
@@ -59,10 +62,11 @@ make up
 
 Comportamento do make up:
 
-1. Sobe emuladores Firebase + seed via Docker Compose.
-2. Instala dependências Flutter e Node (functions/seed).
-3. Executa geração de código com build_runner.
-4. Inicia o app Flutter com USE_EMULATOR=true.
+1. Cria .env automaticamente quando não existir.
+2. Sobe emuladores Firebase + seed via Docker Compose.
+3. Instala dependências Flutter e Node (functions/seed).
+4. Executa geração de código com build_runner.
+5. Inicia o app Flutter com USE_EMULATOR=true.
 
 Serviços disponíveis:
 
@@ -80,6 +84,7 @@ Serviços disponíveis:
 ## Comandos úteis
 
 ```bash
+make env-init
 make infra-up
 make infra-down
 make bootstrap
@@ -127,6 +132,7 @@ codequest/
 ## Documentação do projeto
 
 - docs/ARCHITECTURE.md
+- docs/ENVIRONMENT.md
 - docs/ENGINEERING_GUIDELINES.md
 - docs/BUSINESS_CORE_AUTH.md
 - docs/MODULE_BASE_BLUEPRINT.md
@@ -135,7 +141,32 @@ codequest/
 
 ## Configuração de ambiente
 
-- Copie .env.example para .env quando precisar configurar variáveis locais adicionais.
+- Rode make env-init para gerar .env automaticamente na primeira execução.
+- Ajuste as portas no .env apenas se houver conflito na máquina local.
+- Em produção, não use .env versionado: configure variáveis no ambiente do CI/CD.
+
+## Setup completo (resumo rápido)
+
+```bash
+make env-init
+make infra-up
+make bootstrap
+make run
+```
+
+Ou em um único comando:
+
+```bash
+make up
+```
+
+## Setup de produção (build)
+
+Produção não usa emuladores e deve rodar com USE_EMULATOR=false.
+
+```bash
+flutter build apk --release --dart-define=USE_EMULATOR=false
+```
 
 ## Diagramas Mermaid
 
@@ -155,6 +186,8 @@ codequest/
 - App Android não conecta no Firebase:
   - confirmar Docker ativo com docker ps
   - confirmar uso de host 10.0.2.2 no emulador Android
+- .env ausente:
+  - executar make env-init
 - Porta ocupada:
   - ajustar docker-compose.yml e lib/core/firebase_config.dart
 - Seed não subiu:

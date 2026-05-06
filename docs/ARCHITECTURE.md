@@ -48,6 +48,7 @@ codequest/
 - Navegação centralizada com GoRouter em core/router.dart.
 - Tema visual centralizado em core/theme.dart e shared/theme/app_colors.dart.
 - Infra local em docker-compose com emuladores e seed de dados.
+- Estratégia de ambiente documentada em docs/ENVIRONMENT.md para local (Docker) e produção.
 
 ## Diagrama de Infraestrutura
 

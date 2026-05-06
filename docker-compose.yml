@@ -9,18 +9,18 @@ services:
       sh -c "
       npm --prefix functions install &&
       firebase emulators:start
-      --project codequest-local
+      --project ${FIREBASE_PROJECT_ID:-codequest-local}
       --config /workspace/firebase/firebase.json
       --only auth,firestore,functions,pubsub
       --import=/workspace/firebase/seed-data
       --export-on-exit=/workspace/firebase/seed-data
       "
     ports:
-      - "4000:4000"
-      - "8080:8080"
-      - "9099:9099"
-      - "5001:5001"
-      - "9150:9150"
+      - "${FIREBASE_EMULATOR_UI_PORT:-4000}:4000"
+      - "${FIRESTORE_EMULATOR_PORT:-8080}:8080"
+      - "${FIREBASE_AUTH_EMULATOR_PORT:-9099}:9099"
+      - "${FIREBASE_FUNCTIONS_EMULATOR_PORT:-5001}:5001"
+      - "${FIREBASE_MESSAGING_EMULATOR_PORT:-9150}:9150"
     volumes:
       - ./firebase:/workspace/firebase
       - emulator-data:/workspace/firebase/seed-data
@@ -45,7 +45,7 @@ services:
       node seed.js
       "
     environment:
-      FIREBASE_PROJECT_ID: codequest-local
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-codequest-local}
       FIRESTORE_EMULATOR_HOST: firebase-emulators:8080
       FIREBASE_AUTH_EMULATOR_HOST: firebase-emulators:9099
     volumes:

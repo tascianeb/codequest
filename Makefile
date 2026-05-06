@@ -3,20 +3,24 @@ SHELL := /bin/sh
 PROJECT_NAME := codequest
 FLUTTER_DEFINE_DEV := --dart-define=USE_EMULATOR=true
 
-.PHONY: help up bootstrap infra-up infra-down clean logs seed deps gen analyze test build-apk run migrate ci doctor
+.PHONY: help env-init up bootstrap infra-up infra-down clean logs seed deps gen analyze test build-apk run migrate ci doctor
 
 help:
 	@echo "Comandos disponíveis:"
 	@echo "  make up        - Sobe docker, aplica bootstrap e inicia o app Flutter"
+	@echo "  make env-init  - Cria .env a partir de .env.example (se não existir)"
 	@echo "  make bootstrap - Instala deps e gera código"
 	@echo "  make infra-up  - Sobe emuladores e seed"
 	@echo "  make infra-down- Derruba emuladores"
 	@echo "  make run       - Roda o app Flutter em modo dev"
 	@echo "  make ci        - Executa pipeline local (analyze/test/build)"
 
-up: infra-up deps migrate gen run
+env-init:
+	@if [ ! -f .env ]; then cp .env.example .env && echo ".env criado a partir de .env.example"; else echo ".env já existe"; fi
 
-bootstrap: deps migrate gen
+up: env-init infra-up deps migrate gen run
+
+bootstrap: env-init deps migrate gen
 
 infra-up:
 	docker compose up -d --build

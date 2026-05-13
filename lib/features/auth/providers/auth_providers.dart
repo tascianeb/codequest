@@ -4,13 +4,19 @@ import 'package:codequest/features/auth/application/actions/sign_in_action.dart'
 import 'package:codequest/features/auth/application/actions/sign_out_action.dart';
 import 'package:codequest/features/auth/application/actions/sign_up_action.dart';
 import 'package:codequest/features/auth/data/auth_repository.dart';
+import 'package:codequest/features/auth/data/user_profile_repository.dart';
 import 'package:codequest/features/auth/domain/entities/auth_user.dart';
 import 'package:codequest/features/auth/domain/repositories/auth_repository_contract.dart';
+import 'package:codequest/features/auth/domain/repositories/user_profile_repository_contract.dart';
 import 'package:codequest/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authRepositoryProvider = Provider<AuthRepositoryContract>((ref) {
   return AuthRepository();
+});
+
+final userProfileRepositoryProvider = Provider<UserProfileRepositoryContract>((ref) {
+  return UserProfileRepository();
 });
 
 final observeAuthStateActionProvider = Provider<ObserveAuthStateAction>((ref) {
@@ -22,7 +28,10 @@ final signInActionProvider = Provider<SignInAction>((ref) {
 });
 
 final signUpActionProvider = Provider<SignUpAction>((ref) {
-  return SignUpAction(ref.watch(authRepositoryProvider));
+  return SignUpAction(
+    ref.watch(authRepositoryProvider),
+    ref.watch(userProfileRepositoryProvider),
+  );
 });
 
 final signOutActionProvider = Provider<SignOutAction>((ref) {

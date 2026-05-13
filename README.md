@@ -1,197 +1,366 @@
-# CodeQuest - Infraestrutura Local
+﻿# CodeQuest
 
-Este repositório contém o setup inicial do CodeQuest para desenvolvimento mobile com Flutter + Firebase Emulator Suite.
-O objetivo deste estágio é garantir ambiente funcional local, base arquitetural e fluxo de desenvolvimento padronizado.
+Plataforma gamificada de aprendizado de programação, construída com Flutter, Firebase e Riverpod.
 
-## O que já está pronto
+---
 
-- Infra local com Docker Compose para emuladores Firebase
-- Seed inicial de usuários, liga, trilha e atividades
-- Bootstrap Flutter com Firebase, Hive, Riverpod e GoRouter
-- Estrutura base de autenticação (login/cadastro/sessão)
-- Configurações de VS Code e CI no GitHub Actions
-- Documentação de arquitetura e diretrizes de engenharia
+## Sumário
 
-## Pré-requisitos
+1. [Visão geral da stack](#1-visão-geral-da-stack)
+2. [Pré-requisitos](#2-pré-requisitos)
+3. [Primeiro setup (Windows)](#3-primeiro-setup-windows)
+4. [Primeiro setup (terminal / make)](#4-primeiro-setup-terminal--make)
+5. [Rodando o app no dia a dia](#5-rodando-o-app-no-dia-a-dia)
+6. [Comandos disponíveis (Makefile)](#6-comandos-disponíveis-makefile)
+7. [Serviços disponíveis em desenvolvimento](#7-serviços-disponíveis-em-desenvolvimento)
+8. [Usuários de teste](#8-usuários-de-teste)
+9. [Arquitetura e padrões de código](#9-arquitetura-e-padrões-de-código)
+10. [Contribuindo (branch, commit e PR)](#10-contribuindo-branch-commit-e-pr)
+11. [Solução de problemas](#11-solução-de-problemas)
 
-- Docker Desktop com WSL2 habilitado (Windows)
-- Flutter SDK instalado na máquina host
-- Android Studio com AVD configurado
-- make instalado no ambiente (ou usar Git Bash com make)
+---
 
-Versões recomendadas:
+## 1. Visão geral da stack
 
-- Flutter stable 3.24+
-- Dart 3.5+
-- Node.js 18+
-- Docker Compose v2+
+| Tecnologia | Papel |
+|---|---|
+| Flutter + Dart | App mobile (Android) |
+| Firebase Auth | Autenticação de usuários |
+| Cloud Firestore | Banco de dados NoSQL |
+| Firebase Functions | Lógica server-side em Node.js |
+| Firebase Emulator Suite | Ambiente local completo via Docker |
+| Riverpod 2.x | Injeção de dependência e gerenciamento de estado |
+| Docker Compose | Orquestração dos emuladores Firebase |
+| Node.js 18+ | Runtime das Functions e scripts de seed |
 
-## Primeiros passos (novo desenvolvedor)
+---
 
-1. Clonar o repositório.
-2. Entrar na pasta do projeto.
-3. Inicializar variáveis de ambiente.
-4. Rodar o setup completo com make up.
+## 2. Pré-requisitos
 
-Fluxo sugerido:
+Instale as ferramentas abaixo antes de qualquer coisa:
+
+| Ferramenta | Versão mínima | Download |
+|---|---|---|
+| Flutter SDK (canal stable) | 3.x | https://docs.flutter.dev/get-started/install/windows |
+| Android Studio | Flamingo ou superior | https://developer.android.com/studio |
+| Docker Desktop | 24+ | https://www.docker.com/products/docker-desktop |
+| Node.js | 18 LTS | https://nodejs.org |
+| Git | 2.x | https://git-scm.com |
+
+> **Dica:** Para rodar `make` no Windows, use **Git Bash**, **MSYS2** ou **WSL**.
+> Se preferir não usar `make`, use os scripts `.bat` descritos na seção seguinte.
+
+Validação rápida após instalar:
 
 ```bash
-git clone <url-do-repositorio>
+flutter --version
+docker --version
+docker compose version
+node --version
+```
+
+### Passo obrigatório: Android SDK Command-line Tools
+
+O Android Studio não instala essa ferramenta por padrão, e ela é necessária para criar o emulador.
+
+1. Abra o **Android Studio**
+2. Na tela inicial, clique em **More Actions → SDK Manager**
+   (ou, se já tiver um projeto aberto, vá em **Tools → SDK Manager**)
+3. Clique na aba **SDK Tools**
+4. Marque **Android SDK Command-line Tools (latest)**
+5. Clique **Apply** e aguarde o download concluir
+
+> Esse passo só precisa ser feito uma vez por máquina.
+
+---
+
+## 3. Primeiro setup (Windows)
+
+Se você está no Windows e quer um setup com clique duplo, use os scripts `.bat`:
+
+### 3.1 Clonar o repositório
+
+```
+git clone <URL_DO_REPOSITORIO>
 cd codequest
-make env-init
-make up
 ```
 
-Se não tiver make no Windows, execute manualmente:
+### 3.2 Executar o setup
+
+```
+setup-dev.bat
+```
+
+O que esse script faz, em ordem:
+
+1. Verifica se Flutter, Docker (em execução) e Node.js estão instalados
+2. Verifica se o Android SDK e o `cmdline-tools` estão presentes
+3. Configura `ANDROID_HOME` e `ANDROID_SDK_ROOT` permanentemente nas variáveis de ambiente do usuário
+4. Instala a system image `android-35;google_apis;x86_64` (se ausente)
+5. Aceita todas as licenças do Android SDK
+6. Cria o emulador `Pixel8_API35` (se ausente)
+7. Instala dependências Flutter (`flutter pub get`) e Node.js das functions e seed
+8. Cria o arquivo `.env` a partir de `.env.example` (se não existir)
+9. Sobe o Firebase Emulator Suite via `docker compose up -d --build`
+
+> O script é idempotente: pode ser executado várias vezes sem problemas.
+
+---
+
+## 4. Primeiro setup (terminal / make)
+
+### 4.1 Clonar o repositório
 
 ```bash
-cp .env.example .env
-docker compose up -d --build
+git clone <URL_DO_REPOSITORIO>
+cd codequest
+```
+
+### 4.2 Configurar o ambiente local
+
+```bash
+make env-init
+```
+
+Cria o arquivo `.env` a partir de `.env.example`.
+
+### 4.3 Subir a infraestrutura completa
+
+```bash
+make infra-up
+```
+
+O que esse comando faz automaticamente:
+
+- Configura `ANDROID_HOME` e `ANDROID_SDK_ROOT` permanentemente
+- Instala a system image `android-35;google_apis;x86_64` (se ausente)
+- Aceita todas as licenças do SDK
+- Cria o emulador `Pixel8_API35` (se ausente)
+- Sobe o Docker + Firebase Emulators
+
+### 4.4 Instalar dependências do app
+
+```bash
 flutter pub get
-npm --prefix firebase/functions install
-npm --prefix firebase/seed install
-dart run build_runner build --delete-conflicting-outputs
-flutter run --dart-define=USE_EMULATOR=true
 ```
 
-## Subir ambiente local
+---
 
-```bash
-make up
+## 5. Rodando o app no dia a dia
+
+### Windows (bat)
+
+```
+run-dev.bat
 ```
 
-Comportamento do make up:
-
-1. Cria .env automaticamente quando não existir.
-2. Sobe emuladores Firebase + seed via Docker Compose.
-3. Instala dependências Flutter e Node (functions/seed).
-4. Executa geração de código com build_runner.
-5. Inicia o app Flutter com USE_EMULATOR=true.
-
-Serviços disponíveis:
-
-- Firebase Emulator UI: http://localhost:4000
-- Firestore Emulator: localhost:8080
-- Auth Emulator: localhost:9099
-- Functions Emulator: localhost:5001
-- FCM Emulator: localhost:9150
-
-## Diferença entre make up e make infra-up
-
-- make infra-up: sobe apenas Docker e seed da infraestrutura.
-- make up: sobe infraestrutura + instala dependências + gera código + inicia o app Flutter.
-
-## Comandos úteis
+### Terminal / make
 
 ```bash
-make env-init
-make infra-up
+make run-dev
+```
+
+O que acontece ao executar:
+
+1. Verifica se o emulador `Pixel8_API35` já está rodando
+2. Se não estiver, inicia o emulador e aguarda o boot completo
+3. Roda `flutter run --dart-define=USE_EMULATOR=true`
+
+O flag `USE_EMULATOR=true` faz o app apontar para os emuladores locais do Firebase em vez da produção.
+
+---
+
+## 6. Comandos disponíveis (Makefile)
+
+| Comando | O que faz |
+|---|---|
+| `make infra-up` | Setup completo: Android SDK + Docker + Firebase Emulators |
+| `make infra-down` | Para e remove os containers Docker |
+| `make run-dev` | Inicia emulador (se necessário) + `flutter run` |
+| `make up` | `infra-up` + `bootstrap` + `run-dev` |
+| `make bootstrap` | Instala dependências e roda geração de código |
+| `make analyze` | `flutter analyze` |
+| `make test` | `flutter test` |
+| `make ci` | `bootstrap` + `analyze` + `test` (usado em pipeline) |
+| `make seed` | Popula o Firestore com dados de teste |
+| `make android-setup` | Configura Android SDK isoladamente (sem Docker) |
+| `make env-init` | Cria `.env` a partir de `.env.example` |
+
+---
+
+## 7. Serviços disponíveis em desenvolvimento
+
+| Serviço | URL / Endereço |
+|---|---|
+| Firebase Emulator UI | http://localhost:4000 |
+| Authentication | localhost:9099 |
+| Firestore | localhost:8080 |
+| Cloud Functions | localhost:5001 |
+
+---
+
+## 8. Usuários de teste
+
+Os usuários abaixo são criados automaticamente pelo seed ao subir o emulador:
+
+| E-mail | Senha |
+|---|---|
+| dev@codequest.com | Dev@123456 |
+| alice@codequest.com | Dev@123456 |
+| bob@codequest.com | Dev@123456 |
+| admin@codequest.com | Dev@123456 |
+
+Para repopular os dados de teste:
+
+```bash
+make seed
+```
+
+---
+
+## 9. Arquitetura e padrões de código
+
+O projeto segue **Clean Architecture por feature**, **DDD tático** e **SOLID** em todas as camadas.
+
+### Estrutura de uma feature
+
+```
+lib/features/<feature>/
+  domain/          → entidades, contratos, value objects (sem dependências externas)
+  application/     → casos de uso e regras de negócio
+  data/            → implementações concretas (Firebase, HTTP, local)
+  providers/       → injeção de dependência via Riverpod
+  presentation/    → telas e widgets (somente renderização)
+```
+
+### Regras invioláveis
+
+- A camada `domain` **nunca** importa Firebase, Flutter ou qualquer detalhe de infraestrutura
+- Widgets **não** contêm regra de negócio
+- Repositórios **apenas** acessam a fonte de dados
+- Use cases **orquestram** as operações de domínio
+
+### Documentação de referência
+
+| Documento | Descrição |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | Regras para agentes de IA e devs |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Arquitetura detalhada |
+| [`docs/ENGINEERING_GUIDELINES.md`](docs/ENGINEERING_GUIDELINES.md) | Boas práticas de engenharia |
+| [`docs/BUSINESS_CORE_AUTH.md`](docs/BUSINESS_CORE_AUTH.md) | Regras de negócio do módulo de autenticação |
+
+---
+
+## 10. Contribuindo (branch, commit e PR)
+
+### 1. Atualizar a base local
+
+```bash
+git checkout main
+git pull origin main
+```
+
+### 2. Criar uma branch
+
+Use o padrão:
+
+```
+feat/<nome-curto>    → nova funcionalidade
+fix/<nome-curto>     → correção de bug
+chore/<nome-curto>   → tarefas de manutenção, configs
+docs/<nome-curto>    → atualização de documentação
+```
+
+Exemplo:
+
+```bash
+git checkout -b feat/auth-login-flow
+```
+
+### 3. Validar antes de commitar
+
+```bash
+flutter analyze
+flutter test
+```
+
+### 4. Commitar
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```bash
+git commit -m "feat(auth): add sign in with email and password"
+git commit -m "fix(profile): handle missing leagueId on first login"
+git commit -m "chore: update android setup script"
+```
+
+### 5. Abrir Pull Request
+
+Inclua no corpo do PR:
+
+- **Objetivo:** o que foi feito e por quê
+- **Camadas alteradas:** ex. `domain`, `data`, `providers`
+- **Como testar:** passo a passo para validar a mudança
+- **Screenshot ou GIF** se houver alteração visual
+
+**Checklist mínimo antes de abrir o PR:**
+
+- [ ] App roda localmente sem erros
+- [ ] `flutter analyze` sem warnings novos
+- [ ] `flutter test` passando
+- [ ] Documentação atualizada (se aplicável)
+
+---
+
+## 11. Solução de problemas
+
+### Docker não sobe / erro de engine
+
+**Sintoma:** `Cannot connect to the Docker daemon`
+
+**Solução:**
+1. Abra o Docker Desktop
+2. Aguarde o ícone na bandeja do sistema ficar verde (status: running)
+3. Execute `make infra-up` novamente
+
+---
+
+### App não conecta ao Firebase
+
+**Sintoma:** erros de rede ou timeout ao tentar login/leitura
+
+**Solução:**
+1. Confirme que os emuladores estão ativos: http://localhost:4000
+2. Verifique se o app está rodando com `--dart-define=USE_EMULATOR=true`
+3. No Android Emulator, `localhost` dentro do emulador aponta para `10.0.2.2` — verifique se `firebase_config.dart` usa o endereço correto
+
+---
+
+### Emulador Android não aparece no `flutter devices`
+
+**Sintoma:** `No supported devices connected`
+
+**Solução:**
+1. Verifique se o AVD existe: `make android-setup` (idempotente)
+2. Inicie o emulador: `make run-dev`
+3. Confirme a listagem: `flutter devices`
+
+---
+
+### Seed falhou ou dados estão inconsistentes
+
+**Solução:**
+
+```bash
 make infra-down
-make bootstrap
-make analyze
-make test
-make ci
-make logs
-make doctor
-make clean
-```
-
-## Usuários seed
-
-- dev@codequest.com / Dev@123456
-- alice@codequest.com / Dev@123456
-- bob@codequest.com / Dev@123456
-- admin@codequest.com / Dev@123456
-
-## Dev vs Produção
-
-- Desenvolvimento local: usar USE_EMULATOR=true
-- Produção: USE_EMULATOR=false
-
-Configuração de debug no VS Code:
-
-- CodeQuest DEV: usa USE_EMULATOR=true
-- CodeQuest PROD: usa USE_EMULATOR=false
-
-## Estrutura de pastas (resumo)
-
-```text
-codequest/
-  firebase/
-    functions/            # Cloud Functions
-    seed/                 # Seed inicial para emuladores
-  lib/
-    core/                 # Firebase, rotas e tema
-    features/             # Módulos por funcionalidade
-    shared/               # Widgets e temas compartilhados
-  docs/                   # Arquitetura e padrões de desenvolvimento
-  .vscode/                # Setup de editor e debug
-  .github/workflows/      # CI/CD
-```
-
-## Documentação do projeto
-
-- docs/ARCHITECTURE.md
-- docs/ENVIRONMENT.md
-- docs/ENGINEERING_GUIDELINES.md
-- docs/BUSINESS_CORE_AUTH.md
-- docs/MODULE_BASE_BLUEPRINT.md
-- docs/PENDENCIAS_PROMPT.md
-- AGENTS.md
-
-## Configuração de ambiente
-
-- Rode make env-init para gerar .env automaticamente na primeira execução.
-- Ajuste as portas no .env apenas se houver conflito na máquina local.
-- Em produção, não use .env versionado: configure variáveis no ambiente do CI/CD.
-
-## Setup completo (resumo rápido)
-
-```bash
-make env-init
 make infra-up
-make bootstrap
-make run
+make seed
 ```
 
-Ou em um único comando:
+---
 
-```bash
-make up
-```
+### `make` não encontrado no Windows
 
-## Setup de produção (build)
-
-Produção não usa emuladores e deve rodar com USE_EMULATOR=false.
-
-```bash
-flutter build apk --release --dart-define=USE_EMULATOR=false
-```
-
-## Diagramas Mermaid
-
-- O diagrama de infraestrutura está em docs/ARCHITECTURE.md.
-- Para editar e visualizar Mermaid no VS Code, instale as extensões recomendadas do workspace.
-- Padrão adotado: usar blocos mermaid em markdown para manter diagramas versionados junto do código.
-
-## Credenciais seed
-
-- dev@codequest.com / Dev@123456
-- alice@codequest.com / Dev@123456
-- bob@codequest.com / Dev@123456
-- admin@codequest.com / Dev@123456
-
-## Troubleshooting rápido
-
-- App Android não conecta no Firebase:
-  - confirmar Docker ativo com docker ps
-  - confirmar uso de host 10.0.2.2 no emulador Android
-- .env ausente:
-  - executar make env-init
-- Porta ocupada:
-  - ajustar docker-compose.yml e lib/core/firebase_config.dart
-- Seed não subiu:
-  - verificar logs com docker compose logs seed-runner
-- Erro em código gerado:
-  - rodar dart run build_runner build --delete-conflicting-outputs
-
+**Solução:**
+- Use **Git Bash** (inclui `make` via MSYS2)
+- Ou use os scripts `.bat` diretamente: `setup-dev.bat` e `run-dev.bat`

@@ -1,8 +1,16 @@
+import 'package:codequest/features/auth/domain/errors/auth_failure.dart';
+
 class Password {
   Password(String rawValue) : value = rawValue {
-    if (value.length < 6) {
-      throw ArgumentError('A senha deve ter no mínimo 6 caracteres.');
+    if (value.length < 8 || !_hasLetterAndNumber(value)) {
+      throw AuthFailure.invalidPasswordPolicy();
     }
+  }
+
+  static bool _hasLetterAndNumber(String input) {
+    final hasLetter = RegExp(r'[A-Za-z]').hasMatch(input);
+    final hasNumber = RegExp(r'\d').hasMatch(input);
+    return hasLetter && hasNumber;
   }
 
   final String value;

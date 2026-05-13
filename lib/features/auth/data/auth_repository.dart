@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:codequest/features/auth/domain/entities/auth_user.dart';
+import 'package:codequest/features/auth/domain/errors/auth_failure.dart';
 import 'package:codequest/features/auth/domain/repositories/auth_repository_contract.dart';
 import 'package:codequest/features/auth/domain/value_objects/display_name.dart';
 import 'package:codequest/features/auth/domain/value_objects/email_address.dart';
@@ -7,12 +7,9 @@ import 'package:codequest/features/auth/domain/value_objects/password.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository implements AuthRepositoryContract {
-  AuthRepository({FirebaseAuth? auth, FirebaseFirestore? firestore})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthRepository({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
 
   @override
   Stream<AuthUser?> get authStateChanges {
@@ -21,17 +18,21 @@ class AuthRepository implements AuthRepositoryContract {
 
   @override
   Future<AuthUser> signIn({required EmailAddress email, required Password password}) async {
-    final credential = await _auth.signInWithEmailAndPassword(
-      email: email.value,
-      password: password.value,
-    );
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.value,
+        password: password.value,
+      );
 
-    final user = credential.user;
-    if (user == null) {
-      throw FirebaseAuthException(code: 'user-not-found', message: 'Usuário não encontrado.');
+      final user = credential.user;
+      if (user == null) {
+        throw AuthFailure.userNotFound();
+      }
+
+      return _mapFirebaseUser(user)!;
+    } on FirebaseAuthException catch (error) {
+      throw _mapFirebaseAuthException(error);
     }
-
-    return _mapFirebaseUser(user)!;
   }
 
   @override
@@ -40,26 +41,23 @@ class AuthRepository implements AuthRepositoryContract {
     required Password password,
     required DisplayName name,
   }) async {
-    final credential = await _auth.createUserWithEmailAndPassword(
-      email: email.value,
-      password: password.value,
-    );
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.value,
+        password: password.value,
+      );
 
-    final user = credential.user;
-    if (user != null) {
+      final user = credential.user;
+      if (user == null) {
+        throw AuthFailure.unexpected();
+      }
+
       await user.updateDisplayName(name.value);
-      await _firestore.collection('users').doc(user.uid).set({
-        'uid': user.uid,
-        'email': user.email,
-        'name': name.value,
-        'leagueId': 'bronze-001',
-        'createdAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
 
       return _mapFirebaseUser(user)!;
+    } on FirebaseAuthException catch (error) {
+      throw _mapFirebaseAuthException(error);
     }
-
-    throw FirebaseAuthException(code: 'unknown', message: 'Falha ao criar usuário.');
   }
 
   @override
@@ -68,8 +66,12 @@ class AuthRepository implements AuthRepositoryContract {
   }
 
   @override
-  Future<void> sendPasswordReset(EmailAddress email) {
-    return _auth.sendPasswordResetEmail(email: email.value);
+  Future<void> sendPasswordReset(EmailAddress email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.value);
+    } on FirebaseAuthException catch (error) {
+      throw _mapFirebaseAuthException(error);
+    }
   }
 
   AuthUser? _mapFirebaseUser(User? user) {
@@ -82,5 +84,26 @@ class AuthRepository implements AuthRepositoryContract {
       email: user.email ?? '',
       displayName: user.displayName,
     );
+  }
+
+  AuthFailure _mapFirebaseAuthException(FirebaseAuthException error) {
+    switch (error.code) {
+      case 'invalid-email':
+        return AuthFailure.invalidEmail();
+      case 'user-not-found':
+      case 'invalid-credential':
+      case 'wrong-password':
+        return AuthFailure.invalidCredentials();
+      case 'email-already-in-use':
+        return AuthFailure.emailAlreadyInUse();
+      case 'too-many-requests':
+        return AuthFailure.tooManyRequests();
+      case 'operation-not-allowed':
+        return AuthFailure.operationNotAllowed();
+      case 'weak-password':
+        return AuthFailure.weakPassword();
+      default:
+        return AuthFailure.unexpected();
+    }
   }
 }

@@ -4,12 +4,12 @@
 
 $ErrorActionPreference = "Stop"
 
-$sdkRoot   = "C:\Users\$env:USERNAME\AppData\Local\Android\sdk"
-$sdkMgr    = "$sdkRoot\cmdline-tools\latest\bin\sdkmanager.bat"
-$avdMgr    = "$sdkRoot\cmdline-tools\latest\bin\avdmanager.bat"
-$avdName   = "Pixel8_API35"
-$sysImage  = "system-images;android-35;google_apis;x86_64"
-$platform  = "platforms;android-35"
+$sdkRoot = "C:\Users\$env:USERNAME\AppData\Local\Android\sdk"
+$sdkMgr = "$sdkRoot\cmdline-tools\latest\bin\sdkmanager.bat"
+$avdMgr = "$sdkRoot\cmdline-tools\latest\bin\avdmanager.bat"
+$avdName = "Pixel8_API35"
+$sysImage = "system-images;android-35;google_apis;x86_64"
+$platform = "platforms;android-35"
 $sysImgDir = "$sdkRoot\system-images\android-35\google_apis\x86_64"
 
 Write-Host ""
@@ -43,14 +43,15 @@ if (-not $existingHome) {
         [System.Environment]::SetEnvironmentVariable("PATH", "$currentPath;$additions", "User")
     }
     Write-Host "[setup] ANDROID_HOME configurado."
-} else {
+}
+else {
     Write-Host "[setup] ANDROID_HOME ja configurado: $existingHome"
 }
 
 # Aplica na sessao atual
-$env:ANDROID_HOME     = $sdkRoot
+$env:ANDROID_HOME = $sdkRoot
 $env:ANDROID_SDK_ROOT = $sdkRoot
-$env:PATH             = "$env:PATH;$sdkRoot\cmdline-tools\latest\bin;$sdkRoot\platform-tools;$sdkRoot\emulator"
+$env:PATH = "$env:PATH;$sdkRoot\cmdline-tools\latest\bin;$sdkRoot\platform-tools;$sdkRoot\emulator"
 
 # -------------------------------------------------------
 # 3. Instalar system image se ausente
@@ -59,7 +60,8 @@ if (-not (Test-Path $sysImgDir)) {
     Write-Host "[setup] Instalando system image Android 35 (pode levar alguns minutos)..."
     "y" | & $sdkMgr $sysImage $platform
     Write-Host "[setup] System image instalada."
-} else {
+}
+else {
     Write-Host "[setup] System image ja instalada."
 }
 
@@ -78,7 +80,8 @@ if ("$avdList" -notlike "*$avdName*") {
     Write-Host "[setup] Criando emulador $avdName..."
     "no" | & $avdMgr create avd -n $avdName -k $sysImage --device "pixel_8" --force
     Write-Host "[setup] Emulador criado."
-} else {
+}
+else {
     Write-Host "[setup] Emulador $avdName ja existe."
 }
 
@@ -89,7 +92,8 @@ if (-not (Test-Path "android")) {
     Write-Host "[setup] Habilitando plataforma Android no projeto Flutter..."
     flutter create --platforms=android .
     Write-Host "[setup] Plataforma Android habilitada."
-} else {
+}
+else {
     Write-Host "[setup] Plataforma Android ja habilitada."
 }
 

@@ -22,16 +22,16 @@ Plataforma gamificada de aprendizado de programação, construída com Flutter, 
 
 ## 1. Visão geral da stack
 
-| Tecnologia | Papel |
-|---|---|
-| Flutter + Dart | App mobile (Android) |
-| Firebase Auth | Autenticação de usuários |
-| Cloud Firestore | Banco de dados NoSQL |
-| Firebase Functions | Lógica server-side em Node.js |
-| Firebase Emulator Suite | Ambiente local completo via Docker |
-| Riverpod 2.x | Injeção de dependência e gerenciamento de estado |
-| Docker Compose | Orquestração dos emuladores Firebase |
-| Node.js 18+ | Runtime das Functions e scripts de seed |
+| Tecnologia              | Papel                                            |
+| ----------------------- | ------------------------------------------------ |
+| Flutter + Dart          | App mobile (Android)                             |
+| Firebase Auth           | Autenticação de usuários                         |
+| Cloud Firestore         | Banco de dados NoSQL                             |
+| Firebase Functions      | Lógica server-side em Node.js                    |
+| Firebase Emulator Suite | Ambiente local completo via Docker               |
+| Riverpod 2.x            | Injeção de dependência e gerenciamento de estado |
+| Docker Compose          | Orquestração dos emuladores Firebase             |
+| Node.js 18+             | Runtime das Functions e scripts de seed          |
 
 ---
 
@@ -39,13 +39,13 @@ Plataforma gamificada de aprendizado de programação, construída com Flutter, 
 
 Instale as ferramentas abaixo antes de qualquer coisa:
 
-| Ferramenta | Versão mínima | Download |
-|---|---|---|
-| Flutter SDK (canal stable) | 3.x | https://docs.flutter.dev/get-started/install/windows |
-| Android Studio | Flamingo ou superior | https://developer.android.com/studio |
-| Docker Desktop | 24+ | https://www.docker.com/products/docker-desktop |
-| Node.js | 18 LTS | https://nodejs.org |
-| Git | 2.x | https://git-scm.com |
+| Ferramenta                 | Versão mínima        | Download                                             |
+| -------------------------- | -------------------- | ---------------------------------------------------- |
+| Flutter SDK (canal stable) | 3.x                  | https://docs.flutter.dev/get-started/install/windows |
+| Android Studio             | Flamingo ou superior | https://developer.android.com/studio                 |
+| Docker Desktop             | 24+                  | https://www.docker.com/products/docker-desktop       |
+| Node.js                    | 18 LTS               | https://nodejs.org                                   |
+| Git                        | 2.x                  | https://git-scm.com                                  |
 
 > **Dica:** Para rodar `make` no Windows, use **Git Bash**, **MSYS2** ou **WSL**.
 > Se preferir não usar `make`, use os scripts `.bat` descritos na seção seguinte.
@@ -172,30 +172,30 @@ O flag `USE_EMULATOR=true` faz o app apontar para os emuladores locais do Fireba
 
 ## 6. Comandos disponíveis (Makefile)
 
-| Comando | O que faz |
-|---|---|
-| `make infra-up` | Setup completo: Android SDK + Docker + Firebase Emulators |
-| `make infra-down` | Para e remove os containers Docker |
-| `make run-dev` | Inicia emulador (se necessário) + `flutter run` |
-| `make up` | `infra-up` + `bootstrap` + `run-dev` |
-| `make bootstrap` | Instala dependências e roda geração de código |
-| `make analyze` | `flutter analyze` |
-| `make test` | `flutter test` |
-| `make ci` | `bootstrap` + `analyze` + `test` (usado em pipeline) |
-| `make seed` | Popula o Firestore com dados de teste |
-| `make android-setup` | Configura Android SDK isoladamente (sem Docker) |
-| `make env-init` | Cria `.env` a partir de `.env.example` |
+| Comando              | O que faz                                                 |
+| -------------------- | --------------------------------------------------------- |
+| `make infra-up`      | Setup completo: Android SDK + Docker + Firebase Emulators |
+| `make infra-down`    | Para e remove os containers Docker                        |
+| `make run-dev`       | Inicia emulador (se necessário) + `flutter run`           |
+| `make up`            | `infra-up` + `bootstrap` + `run-dev`                      |
+| `make bootstrap`     | Instala dependências e roda geração de código             |
+| `make analyze`       | `flutter analyze`                                         |
+| `make test`          | `flutter test`                                            |
+| `make ci`            | `bootstrap` + `analyze` + `test` (usado em pipeline)      |
+| `make seed`          | Popula o Firestore com dados de teste                     |
+| `make android-setup` | Configura Android SDK isoladamente (sem Docker)           |
+| `make env-init`      | Cria `.env` a partir de `.env.example`                    |
 
 ---
 
 ## 7. Serviços disponíveis em desenvolvimento
 
-| Serviço | URL / Endereço |
-|---|---|
+| Serviço              | URL / Endereço        |
+| -------------------- | --------------------- |
 | Firebase Emulator UI | http://localhost:4000 |
-| Authentication | localhost:9099 |
-| Firestore | localhost:8080 |
-| Cloud Functions | localhost:5001 |
+| Authentication       | localhost:9099        |
+| Firestore            | localhost:8080        |
+| Cloud Functions      | localhost:5001        |
 
 ---
 
@@ -203,11 +203,11 @@ O flag `USE_EMULATOR=true` faz o app apontar para os emuladores locais do Fireba
 
 Os usuários abaixo são criados automaticamente pelo seed ao subir o emulador:
 
-| E-mail | Senha |
-|---|---|
-| dev@codequest.com | Dev@123456 |
+| E-mail              | Senha      |
+| ------------------- | ---------- |
+| dev@codequest.com   | Dev@123456 |
 | alice@codequest.com | Dev@123456 |
-| bob@codequest.com | Dev@123456 |
+| bob@codequest.com   | Dev@123456 |
 | admin@codequest.com | Dev@123456 |
 
 Para repopular os dados de teste:
@@ -242,12 +242,12 @@ lib/features/<feature>/
 
 ### Documentação de referência
 
-| Documento | Descrição |
-|---|---|
-| [`AGENTS.md`](AGENTS.md) | Regras para agentes de IA e devs |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Arquitetura detalhada |
-| [`docs/ENGINEERING_GUIDELINES.md`](docs/ENGINEERING_GUIDELINES.md) | Boas práticas de engenharia |
-| [`docs/BUSINESS_CORE_AUTH.md`](docs/BUSINESS_CORE_AUTH.md) | Regras de negócio do módulo de autenticação |
+| Documento                                                          | Descrição                                   |
+| ------------------------------------------------------------------ | ------------------------------------------- |
+| [`AGENTS.md`](AGENTS.md)                                           | Regras para agentes de IA e devs            |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)                     | Arquitetura detalhada                       |
+| [`docs/ENGINEERING_GUIDELINES.md`](docs/ENGINEERING_GUIDELINES.md) | Boas práticas de engenharia                 |
+| [`docs/BUSINESS_CORE_AUTH.md`](docs/BUSINESS_CORE_AUTH.md)         | Regras de negócio do módulo de autenticação |
 
 ---
 
@@ -319,6 +319,7 @@ Inclua no corpo do PR:
 **Sintoma:** `Cannot connect to the Docker daemon`
 
 **Solução:**
+
 1. Abra o Docker Desktop
 2. Aguarde o ícone na bandeja do sistema ficar verde (status: running)
 3. Execute `make infra-up` novamente
@@ -330,6 +331,7 @@ Inclua no corpo do PR:
 **Sintoma:** erros de rede ou timeout ao tentar login/leitura
 
 **Solução:**
+
 1. Confirme que os emuladores estão ativos: http://localhost:4000
 2. Verifique se o app está rodando com `--dart-define=USE_EMULATOR=true`
 3. No Android Emulator, `localhost` dentro do emulador aponta para `10.0.2.2` — verifique se `firebase_config.dart` usa o endereço correto
@@ -341,6 +343,7 @@ Inclua no corpo do PR:
 **Sintoma:** `No supported devices connected`
 
 **Solução:**
+
 1. Verifique se o AVD existe: `make android-setup` (idempotente)
 2. Inicie o emulador: `make run-dev`
 3. Confirme a listagem: `flutter devices`
@@ -362,5 +365,6 @@ make seed
 ### `make` não encontrado no Windows
 
 **Solução:**
+
 - Use **Git Bash** (inclui `make` via MSYS2)
 - Ou use os scripts `.bat` diretamente: `setup-dev.bat` e `run-dev.bat`

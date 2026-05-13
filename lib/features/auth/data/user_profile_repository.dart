@@ -10,13 +10,16 @@ class UserProfileRepository implements UserProfileRepositoryContract {
 
   @override
   Future<void> createProfile(UserProfile profile) async {
-    await _firestore.collection('users').doc(profile.uid).set({
-      'uid': profile.uid,
-      'email': profile.email,
-      'name': profile.name,
-      'leagueId': profile.leagueId,
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    await _firestore.collection('users').doc(profile.uid).set(
+      {
+        'uid': profile.uid,
+        'email': profile.email,
+        'name': profile.name,
+        'leagueId': profile.leagueId,
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   @override

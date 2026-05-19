@@ -234,6 +234,32 @@ make up
 | Firestore            | localhost:8080        |
 | Cloud Functions      | localhost:5001        |
 
+### Logs locais
+
+Logs do app Android/Flutter:
+
+```powershell
+adb logcat | Select-String "flutter|FirebaseAuth|RecaptchaCallWrapper|Cleartext|E/flutter|FATAL|Exception"
+```
+
+Últimas linhas do app Android/Flutter:
+
+```powershell
+adb logcat -d -t 400 | Select-String "flutter|FirebaseAuth|RecaptchaCallWrapper|Cleartext|E/flutter|FATAL|Exception"
+```
+
+Logs dos emuladores Firebase:
+
+```powershell
+make logs
+```
+
+Status dos containers:
+
+```powershell
+docker compose ps
+```
+
 ---
 
 ## 8. Usuários de teste
@@ -373,6 +399,29 @@ Inclua no corpo do PR:
 1. Confirme que os emuladores estão ativos: http://localhost:4000
 2. Verifique se o app está rodando com `--dart-define=USE_EMULATOR=true`
 3. No Android Emulator, `localhost` dentro do emulador aponta para `10.0.2.2` — verifique se `firebase_config.dart` usa o endereço correto
+
+---
+
+### Login retorna "Erro inesperado de autenticacao"
+
+**Sintoma:** ao tentar entrar com usuário seed, aparece `Erro inesperado de autenticacao`.
+
+**Como diagnosticar:**
+
+```powershell
+adb logcat -d -t 400 | Select-String "FirebaseAuth|RecaptchaCallWrapper|Cleartext|E/flutter|Exception"
+```
+
+Se aparecer `Cleartext HTTP traffic to 10.0.2.2 not permitted`, o app instalado está desatualizado ou foi buildado sem a permissão local de HTTP.
+
+**Solução:**
+
+```powershell
+adb emu kill
+make run-dev
+```
+
+O projeto permite cleartext local no Android para conversar com Firebase Emulators via `10.0.2.2`.
 
 ---
 

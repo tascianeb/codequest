@@ -11,6 +11,8 @@ class TrailsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[
+          const _MockNotice(),
+          const SizedBox(height: 12),
           Card(
             child: ListTile(
               title: const Text('Flutter Básico'),
@@ -20,6 +22,28 @@ class TrailsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MockNotice extends StatelessWidget {
+  const _MockNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Card(
+      child: Padding(
+        padding: EdgeInsets.all(12),
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.info_outline),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text('Mock: trilhas fixas no front, ainda nao vem do Firestore.'),
+            ),
+          ],
+        ),
       ),
     );
   }
